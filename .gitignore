@@ -17,3 +17,10 @@
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# GoLand related
+.idea
+
+# Build Files
+lambda/bootstrap
+lambda/function.zip
