@@ -3,10 +3,11 @@ package app
 import (
 	"whisper-lambda/api"
 	"whisper-lambda/database"
+	"whisper-lambda/types"
 )
 
 type App struct {
-	ApiHandler api.ApiHandler
+	ApiHandler types.IApiEvents
 }
 
 func NewApp() App {

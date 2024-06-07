@@ -13,6 +13,8 @@ func main() {
 		switch req.Path {
 		case "/sample":
 			return awsApp.ApiHandler.SampleRequest(req)
+		case "/groups":
+			return awsApp.ApiHandler.CreateGroup(req)
 		default:
 			return events.APIGatewayProxyResponse{
 				Body:       "Not Found",

@@ -22,12 +22,12 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	usersTable := awsdynamodb.NewTable(stack, jsii.String("whisper"), &awsdynamodb.TableProps{
+	usersTable := awsdynamodb.NewTable(stack, jsii.String("dbwhisper"), &awsdynamodb.TableProps{
 		PartitionKey: &awsdynamodb.Attribute{
-			Name: jsii.String("userID"),
+			Name: jsii.String("groupID"),
 			Type: awsdynamodb.AttributeType_STRING,
 		},
-		TableName: jsii.String("whipserUsers"),
+		TableName: jsii.String("convoGroups"),
 	})
 
 	lambdaFunc := awslambda.NewFunction(stack, jsii.String("WhisperCdkFunction"), &awslambda.FunctionProps{
@@ -49,6 +49,9 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 	//Define Routes
 	sampleSource := api.Root().AddResource(jsii.String("sample"), nil)
 	sampleSource.AddMethod(jsii.String("GET"), integration, nil)
+
+	groupResource := api.Root().AddResource(jsii.String("groups"), nil)
+	groupResource.AddMethod(jsii.String("POST"), integration, nil)
 
 	//Grant Table r/w
 	usersTable.GrantReadWriteData(lambdaFunc)
