@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigateway"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
@@ -20,6 +21,14 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 		sprops = props.StackProps
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
+
+	usersTable := awsdynamodb.NewTable(stack, jsii.String("whisper"), &awsdynamodb.TableProps{
+		PartitionKey: &awsdynamodb.Attribute{
+			Name: jsii.String("userID"),
+			Type: awsdynamodb.AttributeType_STRING,
+		},
+		TableName: jsii.String("whipserUsers"),
+	})
 
 	lambdaFunc := awslambda.NewFunction(stack, jsii.String("WhisperCdkFunction"), &awslambda.FunctionProps{
 		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
@@ -40,6 +49,9 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 	//Define Routes
 	sampleSource := api.Root().AddResource(jsii.String("sample"), nil)
 	sampleSource.AddMethod(jsii.String("GET"), integration, nil)
+
+	//Grant Table r/w
+	usersTable.GrantReadWriteData(lambdaFunc)
 
 	return stack
 }
