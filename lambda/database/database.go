@@ -5,7 +5,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
-type IDatabase interface{}
+type IDatabase interface {
+}
 
 type DynamoDBClient struct {
 	databaseStore *dynamodb.DynamoDB

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigateway"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
@@ -20,21 +21,25 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	awslambda.NewFunction(stack, jsii.String("WhisperCdkFunction"), &awslambda.FunctionProps{
+	lambdaFunc := awslambda.NewFunction(stack, jsii.String("WhisperCdkFunction"), &awslambda.FunctionProps{
 		Runtime: awslambda.Runtime_PROVIDED_AL2023(),
 		Code:    awslambda.AssetCode_FromAsset(jsii.String("lambda/function.zip"), nil),
 		Handler: jsii.String("main"),
 	})
 
-	//api := awsapigateway.NewRestApi(stack, jsii.String("whisperApi"), &awsapigateway.RestApiProps{
-	//	DefaultCorsPreflightOptions: &awsapigateway.CorsOptions{
-	//		AllowHeaders: jsii.Strings("Content-Type", "Authorization"),
-	//		AllowMethods: jsii.Strings("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"),
-	//		AllowOrigins: jsii.Strings("*"),
-	//	},
-	//})
-	//
-	//integration := awsapigateway.NewLambdaIntegration(lambdaFunc, nil)
+	api := awsapigateway.NewRestApi(stack, jsii.String("whisperApi"), &awsapigateway.RestApiProps{
+		DefaultCorsPreflightOptions: &awsapigateway.CorsOptions{
+			AllowHeaders: jsii.Strings("Content-Type", "Authorization"),
+			AllowMethods: jsii.Strings("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"),
+			AllowOrigins: jsii.Strings("*"),
+		},
+	})
+
+	integration := awsapigateway.NewLambdaIntegration(lambdaFunc, nil)
+
+	//Define Routes
+	sampleSource := api.Root().AddResource(jsii.String("sample"), nil)
+	sampleSource.AddMethod(jsii.String("GET"), integration, nil)
 
 	return stack
 }
