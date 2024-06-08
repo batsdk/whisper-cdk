@@ -53,6 +53,10 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 	groupResource := api.Root().AddResource(jsii.String("groups"), nil)
 	groupResource.AddMethod(jsii.String("POST"), integration, nil)
 
+	groupIncrementResource := groupResource.AddResource(jsii.String("increment"), nil)
+	groupIDResource := groupIncrementResource.AddResource(jsii.String("{id}"), nil)
+	groupIDResource.AddMethod(jsii.String("GET"), integration, nil)
+
 	//Grant Table r/w
 	usersTable.GrantReadWriteData(lambdaFunc)
 

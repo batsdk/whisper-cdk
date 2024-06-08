@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"net/http"
+	"strings"
 	"whisper-lambda/app"
 )
 
@@ -16,6 +17,9 @@ func main() {
 		case "/groups":
 			return awsApp.ApiHandler.CreateGroup(req)
 		default:
+			if strings.HasPrefix(req.Path, "/groups/increment") {
+				return awsApp.ApiHandler.IncrementGroupMemberCount(req)
+			}
 			return events.APIGatewayProxyResponse{
 				Body:       "Not Found",
 				StatusCode: http.StatusNotFound,

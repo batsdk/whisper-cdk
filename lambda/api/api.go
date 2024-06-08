@@ -49,3 +49,21 @@ func (api ApiHandler) CreateGroup(request events.APIGatewayProxyRequest) (events
 	return utils.CreateResponse(http.StatusCreated, "Group Created"), nil
 
 }
+
+func (api ApiHandler) IncrementGroupMemberCount(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+
+	groupID := request.PathParameters["id"]
+
+	if groupID == "" {
+		return utils.CreateResponse(http.StatusBadRequest, "Group ID Can not be empty"), nil
+	}
+
+	err := api.dbStore.IncrementGroupMemberCount(groupID)
+
+	if err != nil {
+		return utils.CreateResponse(http.StatusInternalServerError, "Error incrementing group member count"), err
+	}
+
+	return utils.CreateResponse(http.StatusCreated, "Group Member count updated"), nil
+
+}

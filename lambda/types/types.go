@@ -11,8 +11,10 @@ type Group struct {
 type IApiEvents interface {
 	SampleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
 	CreateGroup(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
+	IncrementGroupMemberCount(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
 }
 
 type IDatabase interface {
 	CreateGroup(group Group) error
+	IncrementGroupMemberCount(groupID string) error
 }

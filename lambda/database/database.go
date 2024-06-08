@@ -27,7 +27,10 @@ func (d DynamoDBClient) CreateGroup(group types.Group) error {
 				S: aws.String(group.CreatedBy),
 			},
 			"groupID": {
-				S: aws.String(group.GroupName),
+				S: aws.String(group.GroupID),
+			},
+			"memberCount": {
+				N: aws.String("0"), // Initialize member count to 0
 			},
 		},
 	}
@@ -37,6 +40,33 @@ func (d DynamoDBClient) CreateGroup(group types.Group) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (d DynamoDBClient) IncrementGroupMemberCount(groupID string) error {
+
+	updateItem := &dynamodb.UpdateItemInput{
+		TableName: aws.String(TABLE_NAME),
+		Key: map[string]*dynamodb.AttributeValue{
+			"groupID": {
+				S: aws.String(groupID),
+			},
+		},
+		UpdateExpression: aws.String("SET memberCount = memberCount + :incr"),
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":incr": {
+				N: aws.String("1"),
+			},
+		},
+		ReturnValues: aws.String("UPDATED_NEW"),
+	}
+
+	_, err := d.databaseStore.UpdateItem(updateItem)
+
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
