@@ -1,6 +1,8 @@
 package types
 
-import "github.com/aws/aws-lambda-go/events"
+import (
+	"net/http"
+)
 
 type Group struct {
 	GroupName string `json:"groupName"`
@@ -9,9 +11,9 @@ type Group struct {
 }
 
 type IApiEvents interface {
-	SampleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
-	CreateGroup(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
-	IncrementGroupMemberCount(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
+	SampleRequest(w http.ResponseWriter, req *http.Request)
+	CreateGroup(w http.ResponseWriter, req *http.Request)
+	IncrementGroupMemberCount(w http.ResponseWriter, req *http.Request)
 }
 
 type IDatabase interface {

@@ -1,29 +1,31 @@
 package main
 
 import (
+	"context"
+	"whisper-lambda/app"
+
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"net/http"
-	"strings"
-	"whisper-lambda/app"
+	chiadapter "github.com/awslabs/aws-lambda-go-api-proxy/chi"
+	chi "github.com/go-chi/chi/v5"
 )
 
+var chiLambda *chiadapter.ChiLambda
+
+func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	router := chi.NewRouter()
+	api := app.NewApp()
+
+	// Define routes
+	router.Get("/sample", api.ApiHandler.SampleRequest)
+	router.Post("/groups", api.ApiHandler.CreateGroup)
+	router.Post("/groups/increment/{id}", api.ApiHandler.IncrementGroupMemberCount)
+
+	// Use chiadapter to handle the request with chi router
+	chiLambda := chiadapter.New(router)
+	return chiLambda.ProxyWithContext(ctx, req)
+}
+
 func main() {
-	awsApp := app.NewApp()
-	lambda.Start(func(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		switch req.Path {
-		case "/sample":
-			return awsApp.ApiHandler.SampleRequest(req)
-		case "/groups":
-			return awsApp.ApiHandler.CreateGroup(req)
-		default:
-			if strings.HasPrefix(req.Path, "/groups/increment") {
-				return awsApp.ApiHandler.IncrementGroupMemberCount(req)
-			}
-			return events.APIGatewayProxyResponse{
-				Body:       "Not Found",
-				StatusCode: http.StatusNotFound,
-			}, nil
-		}
-	})
+	lambda.Start(handler)
 }
