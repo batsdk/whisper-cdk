@@ -19,12 +19,16 @@ func NewApiHandler(databaseStore types.IDatabase) ApiHandler {
 	}
 }
 
-func (api ApiHandler) SampleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	return events.APIGatewayProxyResponse{
-		StatusCode: http.StatusOK,
-		Body:       "Sample Request Response is going okay",
-	}, nil
+func (api ApiHandler) SampleRequest(w http.ResponseWriter, req *http.Request) {
+	w.Write([]byte("Hello, World from chi in API Handler"))
 }
+
+//func (api ApiHandler) SampleRequest(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+//	return events.APIGatewayProxyResponse{
+//		StatusCode: http.StatusOK,
+//		Body:       "Sample Request Response is going okay",
+//	}, nil
+//}
 
 func (api ApiHandler) CreateGroup(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
