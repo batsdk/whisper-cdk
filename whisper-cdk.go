@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigateway"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigatewayv2integrations"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 
@@ -59,6 +61,31 @@ func NewWhisperCdkStack(scope constructs.Construct, id string, props *WhisperCdk
 
 	//Grant Table r/w
 	usersTable.GrantReadWriteData(lambdaFunc)
+
+	//Creating WebSocket Connection
+	wsApi := awsapigatewayv2.NewWebSocketApi(stack, jsii.String("whisperws"), &awsapigatewayv2.WebSocketApiProps{
+		ApiName: jsii.String("whisperwebsocket"),
+	})
+
+	awsapigatewayv2.NewWebSocketStage(stack, jsii.String("whispersocketstage"), &awsapigatewayv2.WebSocketStageProps{
+		AutoDeploy:   jsii.Bool(true),
+		StageName:    jsii.String("dev"),
+		WebSocketApi: wsApi,
+	})
+
+	wsIntegration := awsapigatewayv2integrations.NewWebSocketLambdaIntegration(jsii.String("WsIntegration"), lambdaFunc, nil)
+	wsApi.AddRoute(jsii.String("$connect"), &awsapigatewayv2.WebSocketRouteOptions{
+		Integration: wsIntegration,
+	})
+	wsApi.AddRoute(jsii.String("$disconnect"), &awsapigatewayv2.WebSocketRouteOptions{
+		Integration: wsIntegration,
+	})
+	wsApi.AddRoute(jsii.String("$default"), &awsapigatewayv2.WebSocketRouteOptions{
+		Integration: wsIntegration,
+	})
+	wsApi.AddRoute(jsii.String("sendMessage"), &awsapigatewayv2.WebSocketRouteOptions{
+		Integration: wsIntegration,
+	})
 
 	return stack
 }
